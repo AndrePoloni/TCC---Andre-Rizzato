@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAD - Análise de Ensaios</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div id="loader" class="loader-overlay"><div class="loader"></div></div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile">
+                <div class="user-avatar"><span>{{ current_user.username[0] | upper }}</span></div>
+                <span class="user-name">{{ current_user.username }}</span>
+            </div>
+            <h2>Ensaios</h2>
+            <button class="btn-new-route">+ Novo Ensaio</button>
+            <div id="compare-controls">
+                <button id="compare-btn" class="btn-compare">Comparar Ensaios</button>
+                <button id="cancel-compare-btn" class="btn-cancel" style="display: none;">Cancelar</button>
+            </div>
+            <button class="btn-toggle-sidebar" title="Minimizar">&#9776;</button>
+        </div>
+        <div class="routes-list" id="routesList"></div>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('logout') }}" class="btn-logout">
+                <span class="btn-icon">&#10162;</span>
+                <span class="btn-label">Sair</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 id="main-title">Análise de Sensores</h1>
+            <div id="welcome-screen">
+                <h2>Bem-vindo!</h2>
+                <p>Selecione um ensaio para começar ou clique em "Comparar Ensaios" para analisar múltiplos trajetos.</p>
+            </div>
+            <div id="analysis-content" style="display: none;">
+                 <div id="ensaio-details" style="margin-bottom: 1.5rem; background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"></div>
+                <div class="kpi-container" id="kpi-container">
+                    <div class="kpi-card"><span class="kpi-title">Distância Total</span><span class="kpi-value" id="kpi-distance">--</span><span class="kpi-unit">km</span></div>
+                    <div class="kpi-card kpi-card-editable">
+                        <span class="kpi-title">Impactos Severos</span>
+                        <div class="kpi-display"><span class="kpi-value" id="kpi-impacts">--</span><span class="kpi-unit">eventos</span></div>
+                        <div class="kpi-edit-form" style="display: none;">
+                            <label for="threshold-input" class="kpi-edit-label">Limiar (m/s²)</label>
+                            <div class="kpi-edit-controls"><input type="number" id="threshold-input" step="0.1" value="8.0"><button id="save-threshold-btn">Salvar</button></div>
+                        </div>
+                        <span class="kpi-settings-icon" id="edit-threshold-btn" title="Alterar limiar">&#9881;</span>
+                    </div>
+                    <div class="kpi-card"><span class="kpi-title">Vibração Máxima</span><span class="kpi-value" id="kpi-max-vibration">--</span><span class="kpi-unit">m/s²</span></div>
+                </div>
+                <div id="kpi-comparison-container" style="display: none; margin-bottom: 2rem;"></div>
+
+                <button class="btn-export" onclick="exportPDF()">Exportar Relatório</button>
+                <div class="map-wrapper"><div id="map"></div></div>
+                <div class="chart-container">
+                    <div class="chart-wrapper"><canvas id="tempChart"></canvas></div>
+                    <div class="chart-wrapper"><canvas id="vibChart"></canvas></div>
+                    <div class="chart-wrapper"><canvas id="umidChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="newRouteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Novo Ensaio</h3>
+            <form id="routeForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="routeName">Nome do Ensaio</label>
+                    <input type="text" id="routeName" name="name" placeholder="Ex: Ensaio Caixa A" required>
+                </div>
+                <div class="form-group">
+                    <label for="supplier">Fornecedor da Embalagem</label>
+                    <input type="text" id="supplier" name="supplier" placeholder="Ex: Fornecedor X" required>
+                </div>
+                <div class="form-group">
+                    <label for="product">Produto Transportado</label>
+                    <input type="text" id="product" name="product" placeholder="Ex: Produto Frágil Y" required>
+                </div>
+                 <div class="form-group">
+                    <label for="route_info">Rota Utilizada</label>
+                    <input type="text" id="route_info" name="route_info" placeholder="Ex: São Paulo - Campinas" required>
+                </div>
+                <div class="form-group">
+                    <label for="routeFile">Arquivo de Dados (.txt)</label>
+                    <input type="file" id="routeFile" name="file" accept=".txt" required style="display:none;">
+                    <label for="routeFile" class="btn-upload">Escolher arquivo</label>
+                    <span id="file-chosen">Nenhum arquivo selecionado</span>
+                </div>
+                <button type="submit" class="btn-modal">Criar Ensaio</button>
+            </form>
+            <div class="modal-feedback" id="modalFeedback"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</body>
+</html>

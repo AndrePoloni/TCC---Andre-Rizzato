@@ -1,0 +1,749 @@
+:root {
+    --sidebar-width: 280px;
+    --primary: #0e4967;
+    --secondary: #064832;
+    --accent: #e3e3e5;
+    --bg: #F9FAFB;
+    --card: #4c899e;
+    --text: #1F2937;
+    --text-light: #6B7280;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: var(--sidebar-width, 280px);
+    background: var(--card); 
+    border-right: 1px solid #e5e7eb;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    border-radius: 0px;
+}
+
+.sidebar.minimized {
+    width: 90px; 
+    overflow-x: hidden;
+    padding: 1rem 0.5rem;
+}
+
+/* Esconde os elementos de texto grandes quando minimizado */
+.sidebar.minimized .user-name,
+.sidebar.minimized .sidebar-header h2,
+.sidebar.minimized .btn-new-route .btn-label,
+.sidebar.minimized .btn-delete,
+.sidebar.minimized .btn-logout .btn-label,
+.sidebar.minimized .route-details .full-route-name, 
+.sidebar.minimized .route-details small { /* Esconde a data */
+    display: none;
+}
+
+/* Mostra o nome abreviado apenas quando minimizado */
+.truncated-route-name {
+    display: none; /* Escondido por padrão */
+}
+.sidebar.minimized .truncated-route-name {
+    display: block; /* Visível quando minimizado */
+    font-size: 0.7rem;
+    font-weight: 500;
+    margin-top: 4px; /* Espaço entre o ícone e o texto */
+    color: #000;
+}
+
+/* Ajusta o layout dos cards de rota quando minimizado */
+.sidebar.minimized .route-card {
+    flex-direction: column; /* Coloca ícone e texto um sobre o outro */
+    align-items: center;    /* Centraliza horizontalmente */
+    justify-content: center;
+    height: 65px; /* Altura fixa para alinhar os cards */
+    padding: 0.5rem 0.2rem;
+}
+
+.sidebar.minimized .route-card .route-icon {
+    font-size: 1.8rem; /* Aumenta um pouco o ícone */
+}
+
+/* Centraliza os outros elementos */
+.sidebar.minimized .user-profile,
+.sidebar.minimized .btn-new-route,
+.sidebar.minimized .btn-logout {
+    justify-content: center;
+}
+
+.sidebar.minimized .sidebar-header {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+}
+
+.sidebar.minimized .user-profile {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar.minimized .btn-toggle-sidebar {
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.sidebar-header {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    color: var(--text); 
+}
+.sidebar-header h2 {
+    margin: 0 0 1rem 0;
+    color: #020202; 
+}
+.btn-new-route {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    transition: background 0.2s, transform 0.15s;
+}
+.btn-new-route:hover {
+    background: var(--accent);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+.btn-toggle-sidebar {
+    position: absolute;
+    top: 1.6rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #070707; 
+    cursor: pointer;
+    z-index: 10;
+}
+.btn-toggle-sidebar:hover {
+    color: var(--primary); 
+}
+.routes-list {
+    margin-top: 1rem;
+}
+.route-card {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: rgb(214, 212, 212); 
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    color: #000000; 
+    border-left: 4px solid transparent;
+}
+.route-card:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.route-card.active {
+    border-left: 4px solid var(--primary);
+    background: rgba(255, 255, 255, 0.2);
+}
+.route-card h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    color: #000000;
+}
+.route-card small {
+    color: rgba(2, 2, 2, 0.7);
+}
+.btn-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: #e11d48;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    position: relative;
+}
+.main-content::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: url('../img/logistidc.png') no-repeat center center;
+    background-size: cover;
+    opacity: 0.30;
+}
+
+h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+}
+.chart-wrapper {
+    width: 100%;
+    height: 320px;
+    position: relative;
+    background: rgb(226, 226, 226); 
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent;
+}
+
+/* Botões */
+.btn-export,
+.btn-modal,
+.btn-upload {
+    padding: 0.6rem 1.2rem;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    text-align: center;
+}
+.btn-export:hover,
+.btn-modal:hover,
+.btn-upload:hover {
+    background: var(--accent);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+.chart-wrapper > .btn-export {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+.chart-wrapper:hover > .btn-export {
+    opacity: 1;
+}
+#analysis-content > .btn-export {
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+    margin-bottom: 1.5rem;
+    margin-top: -1rem;
+}
+
+/* Modal e formulário */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(175, 172, 172, 0.5); 
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background: #ffffff; 
+    border-radius: 12px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    position: relative;
+    color: var(--text);
+}
+.modal-content h3 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-size: 1.6rem;
+}
+.form-group {
+    margin-bottom: 1.2rem;
+}
+.form-group label {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    display: block;
+}
+.form-group input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.7rem 1rem;
+    border-radius: 7px;
+    border: 1px solid #e5e7eb;
+    font-size: 1rem;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+.form-group input[type="text"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    outline: none;
+}
+input[type="file"] { display: none; }
+#file-chosen {
+    margin-left: 10px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+.modal-feedback {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #ef4444;
+    min-height: 1.2em;
+}
+.close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+.close:hover {
+    color: var(--text);
+}
+
+/* Estilos para o mapa */
+.map-wrapper {
+    height: 400px;
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+#map {
+    height: 100%;
+    width: 100%;
+    background-color: #e3e3e5;
+}
+
+/* Estilos para a tela de boas-vindas */
+#welcome-screen {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    margin-top: 2rem;
+    border: 1px solid #e5e7eb;
+    color: var(--text-light);
+}
+#welcome-screen h2 {
+    color: var(--text);
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+#welcome-screen p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Estilos para o loader */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(2px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.loader {
+    border: 8px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 8px solid var(--primary);
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos para o container de KPIs */
+.kpi-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.kpi-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+.kpi-title {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+.kpi-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+.kpi-unit {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+/*ESTILOS PARA PÁGINAS DE AUTENTICAÇÃo*/
+.auth-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg);
+    background-image: url('../img/background-login.png'); 
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh; 
+}
+
+.auth-container {
+    background: #ffffff;
+    padding: 2.5rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-container h2 {
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.auth-container p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+
+.auth-container .form-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.auth-container .form-group input {
+    width: 100%; 
+    padding: 0.7rem 1rem;
+    border-radius: 7px;
+    border: 1px solid #e5e7eb;
+    font-size: 1rem;
+    box-sizing: border-box; /* Garante que o padding e a borda não aumentem a largura total */
+}
+
+.auth-container .btn-modal {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+}
+
+.auth-link {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+}
+.auth-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para as mensagens Flash */
+.flash {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+}
+.flash-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+.flash-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+.flash-warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+}
+
+
+/* Estilo para o footer da sidebar e botão de logout */
+.sidebar-footer {
+    margin-top: auto; /* Empurra para o final da sidebar */
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-logout {
+    display: block;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+    color: #181212;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+.btn-logout:hover {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+/*ESTILOS PARA O PERFIL DO USUÁRIO NA SIDEBAR*/
+
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem; /* Espaço abaixo do nome */
+    padding-bottom: 1.5rem; /* Espaço para a linha */
+    border-bottom: 1px solid #e5e7eb; /* Linha separadora */
+    width: 100%;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Deixa o avatar redondo */
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.user-name {
+    color: var(--text);
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+/* Ajustes quando a sidebar está minimizada */
+.sidebar.minimized .user-profile {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar.minimized .user-name {
+    display: none; /* Esconde o nome quando minimizado */
+}
+
+/*ESTILOS PARA O CARD DE KPI EDITÁVEL */
+
+.kpi-card-editable {
+    position: relative; /* Necessário para posicionar o ícone */
+}
+
+.kpi-settings-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    font-size: 1.2rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.2s;
+}
+
+.kpi-settings-icon:hover {
+    transform: rotate(90deg);
+    color: var(--primary);
+}
+
+/* Regra principal para o formulário */
+.kpi-edit-form {
+    display: flex; /* Alterado para none por padrão, JS controla a exibição */
+    flex-direction: column; /* Coloca o título em cima dos controles */
+    align-items: center;
+    gap: 5px; /* Espaço entre o título e os controles */
+    margin-top: 0.5rem;
+}
+
+.kpi-edit-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-bottom: 2px;
+}
+
+.kpi-edit-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kpi-edit-form input {
+    width: 60px;
+    padding: 5px 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1rem;
+    -moz-appearance: textfield; /* Para Firefox */
+}
+
+.kpi-edit-form input::-webkit-outer-spin-button,
+.kpi-edit-form input::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Para Chrome, Safari, etc. */
+  margin: 0;
+}
+
+.kpi-edit-form button {
+    padding: 6px 12px;
+    border: none;
+    background: var(--primary);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.kpi-edit-form button:hover {
+    background: #4f46e5;
+}
+/*ESTILOS PARA FUNCIONALIDADE DE COMPARAÇÃO*/
+
+/* Controles de Comparação na Sidebar */
+#compare-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 0.5rem;
+}
+.btn-compare {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--secondary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-cancel {
+    width: 100%;
+    padding: 0.75rem;
+    background: #6B7280; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Checkbox que aparece no modo de comparação */
+.route-compare-checkbox {
+    display: none; /* Escondido por padrão */
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin-right: 10px; /* Espaço para o nome da rota */
+}
+body.compare-mode .route-compare-checkbox {
+    display: block; /* Visível apenas em modo de comparação */
+}
+body.compare-mode .route-card {
+    cursor: pointer;
+}
+
+/* Tabela de Comparação de KPIs */
+#kpi-comparison-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid #e5e7eb;
+}
+#kpi-comparison-container th,
+#kpi-comparison-container td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+#kpi-comparison-container th {
+    background-color: #f9fafb;
+    font-weight: 600;
+}
+#kpi-comparison-container tr:last-child td {
+    border-bottom: none;
+}
